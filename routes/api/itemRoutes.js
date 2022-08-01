@@ -2,21 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require('express');
 const router = express.Router();
+const uid_1 = require("uid");
 const data = require('../../items.json');
 // Send all items
 router.get('/', (req, res) => {
     res.send(data);
 });
 // Send a specific item
-router.get('/:name', (req, res) => {
-    // res.send(data.filter((item) => {
-    //     if(item.name === req.params)
-    //     {
-    //         return item;
-    //     }
-    // }));
+router.get('/:id', (req, res) => {
     const requestedItem = data.find((item) => {
-        return item.name === req.params.name;
+        return item.id === req.params.id;
     });
     if (requestedItem === undefined) {
         res.status(404);
@@ -34,6 +29,7 @@ router.post('/', (req, res) => {
     }
     // We are assuming the request will be a valid item
     const newItem = {
+        id: (0, uid_1.uid)(),
         name: req.body.name,
         description: req.body.description,
         value: req.body.value,
@@ -44,10 +40,10 @@ router.post('/', (req, res) => {
     res.send(newItem);
 });
 // Modify an existing item
-router.put('/:name', (req, res) => {
+router.put('/:id', (req, res) => {
     // Checking if the item to modify exists
     const itemToFind = data.find((item) => {
-        return item.name === req.params.name;
+        return item.id === req.params.id;
     });
     if (itemToFind === undefined) {
         res.status(404).send("Item does not exist");
@@ -66,10 +62,10 @@ router.put('/:name', (req, res) => {
     itemToFind.quantity = req.body.quantity;
     res.send(data);
 });
-router.delete('/:name', (req, res) => {
+router.delete('/:id', (req, res) => {
     // Checking if the item to modify exists
     const itemToFind = data.find((item) => {
-        return item.name === req.params.name;
+        return item.id === req.params.id;
     });
     if (itemToFind === undefined) {
         res.status(404).send("Item does not exist");
