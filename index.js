@@ -5,7 +5,7 @@ const cors = require('cors');
 const app = express();
 app.use(express.json());
 app.use('/api/items', require('./routes/api/itemRoutes.js')); // /api/items is the url everything will be accessible from
-app.use(cors({ origin: 'localhost:3000' }));
+app.use(cors({ origin: 'localhost:3000/' }));
 app.get('/', (req, res) => {
     res.send('asdgasdg');
 });
