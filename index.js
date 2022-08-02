@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require('express');
+const cors = require('cors');
 const app = express();
 app.use(express.json());
 app.use('/api/items', require('./routes/api/itemRoutes.js')); // /api/items is the url everything will be accessible from
+app.use(cors());
 app.get('/', (req, res) => {
     res.send('asdgasdg');
 });
