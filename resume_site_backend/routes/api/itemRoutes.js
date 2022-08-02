@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require('express');
 const router = express.Router();
 const uid_1 = require("uid");
-const data = require('../../items.json');
+const data = require('../../items.json'); // This is my fake database.
 // Send all items
 router.get('/', (req, res) => {
     res.send(data);

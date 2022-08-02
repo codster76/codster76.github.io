@@ -1,0 +1,7 @@
+To start backend local server
+- Make sure you're in resume_site_backend (cd resume_site_backend)
+- Run "nodemon index.js"
+- Don't forget to run "tsc"
+
+To start frontend local server
+- Just navigate to resume_site_frontend and run "npm start"
