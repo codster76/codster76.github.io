@@ -13,10 +13,17 @@ interface HeadingState
     currentHeading: string,
     updateHeading: Function,
     name: string,
-    sortFunction: (a:itemType, b:itemType) => number // It's optional because you only need to provide a comparison function for non-strings
+    sortFunctionAscending: (a:itemType, b:itemType) => number,
+    sortFunctionDescending: (a:itemType, b:itemType) => number,
+    sortingState: sortingStates
 }
 
+type sortingStates = "unsorted" | "ascending" | "descending";
+
 let lastModified: HeadingState;
+let stateList: HeadingState[];
+
+// To add a new heading, just add a new state, then add that state to the stateList
 
 const HeadingAndSortingComponent = (props: HeadingAndSortingComponentProps) =>
 {
@@ -27,40 +34,100 @@ const HeadingAndSortingComponent = (props: HeadingAndSortingComponentProps) =>
     const [weightHeading, updateWeightHeading]: [string, Function] = useState('Weight');
 
     // This array is made so that all of the states can be iterated through to display
-    const stateList: HeadingState[] = [
-        {currentHeading: nameHeading, updateHeading: updateNameHeading, name: 'Name', sortFunction: (a, b) => a.name.localeCompare(b.name)},
-        {currentHeading: descriptionHeading, updateHeading: updateDescriptionHeading, name: 'Description', sortFunction: (a, b) => a.description.localeCompare(b.description)},
-        {currentHeading: quantityHeading, updateHeading: updateQuantityHeading, name: 'Quantity', sortFunction: (a, b) => a.quantity - b.quantity},
-        {currentHeading: valueHeading, updateHeading: updateValueHeading, name: 'Value', sortFunction: (a, b) => a.value - b.value},
-        {currentHeading: weightHeading, updateHeading: updateWeightHeading, name: 'Weight', sortFunction: (a, b) => a.weight - b.weight}
-    ]
+    // These if statements are necessary because react will rerun this code and redeclare these variables
+    if(!stateList) {
+        stateList = [
+            {
+                currentHeading: nameHeading,
+                updateHeading: updateNameHeading,
+                name: 'Name',
+                sortFunctionAscending: (a, b) => a.name.localeCompare(b.name),
+                sortFunctionDescending: (a, b) => b.name.localeCompare(a.name),
+                sortingState: "unsorted"
+            },
+            {
+                currentHeading: descriptionHeading,
+                updateHeading: updateDescriptionHeading,
+                name: 'Description',
+                sortFunctionAscending: (a, b) => a.description.localeCompare(b.description),
+                sortFunctionDescending: (a, b) => b.description.localeCompare(a.description),
+                sortingState: "unsorted"
+            },
+            {
+                currentHeading: quantityHeading,
+                updateHeading: updateQuantityHeading,
+                name: 'Quantity',
+                sortFunctionAscending: (a, b) => a.quantity - b.quantity,
+                sortFunctionDescending: (a, b) => b.quantity - a.quantity,
+                sortingState: "unsorted"
+            },
+            {
+                currentHeading: valueHeading,
+                updateHeading: updateValueHeading,
+                name: 'Value',
+                sortFunctionAscending: (a, b) => a.value - b.value,
+                sortFunctionDescending: (a, b) => b.value - a.value,
+                sortingState: "unsorted"
+            },
+            {
+                currentHeading: weightHeading,
+                updateHeading: updateWeightHeading,
+                name: 'Weight',
+                sortFunctionAscending: (a, b) => a.weight - b.weight,
+                sortFunctionDescending: (a, b) => b.weight - a.weight,
+                sortingState: "unsorted"
+            }
+        ]
+    }
 
     // To ensure lastModified always has a value
-    if(lastModified === undefined)
+    if(!lastModified)
     {
         lastModified = stateList[0];
     }
 
-    const headingClickBehaviour = (states: HeadingState) =>
+    const headingClickBehaviour = (currentState: HeadingState) =>
     {
-        // Sort the array by the current heading
-        props.updateItems([...props.items.sort(states.sortFunction)]); // I don't 100% know why the spread operator is necessary, but I think updateItems needs a brand new array to actually render again
-
-        // Modify the heading names
-
+        console.log(lastModified);
         // Basically, if the last heading modified was the one that was clicked, cycle through the sorting types
-        if(lastModified.name === states.name)
+        if(lastModified.name === currentState.name)
         {
-            states.currentHeading === states.name ? states.updateHeading(states.name + '↓') : states.updateHeading(states.name);
-            lastModified.currentHeading = lastModified.name;
+            switch(currentState.sortingState)
+            {
+                case "unsorted":
+                    console.log('1');
+                    currentState.updateHeading(currentState.name + '↓');
+                    currentState.currentHeading = currentState.name + '↓'; // I really don't know why updating the state doesn't update the labels, but whatever
+                    currentState.sortingState = 'ascending';
+                    props.updateItems([...props.items.sort(currentState.sortFunctionAscending)]);
+                    break;
+                case "ascending":
+                    console.log('2');
+                    currentState.updateHeading(currentState.name + '↑');
+                    currentState.currentHeading = currentState.name + '↑';
+                    currentState.sortingState = 'descending';
+                    props.updateItems([...props.items.sort(currentState.sortFunctionDescending)]);
+                    break;
+                case "descending":
+                    console.log('3');
+                    currentState.updateHeading(currentState.name + '↓');
+                    currentState.currentHeading = currentState.name + '↓';
+                    currentState.sortingState = 'ascending';
+                    props.updateItems([...props.items.sort(currentState.sortFunctionAscending)]);
+                    break;
+            }
         }
         else
         {
+            props.updateItems([...props.items.sort(currentState.sortFunctionAscending)]);
             lastModified.updateHeading(lastModified.name);
+            lastModified.sortingState = 'unsorted';
+            currentState.sortingState = 'ascending';
             lastModified.currentHeading = lastModified.name;
-            states.currentHeading === states.name ? states.updateHeading(states.name + '↓') : states.updateHeading(states.name);
+            currentState.updateHeading(currentState.name + '↓');
+            currentState.currentHeading = currentState.name + '↓';
         }
-        lastModified = {...states};
+        lastModified = currentState;
     }
 
     return (
