@@ -1,9 +1,13 @@
 .flexContainer {
-    display: flex;
     background-color: yellow;
+    display: flex;
     min-height: 3em;
     justify-content: space-around;
     align-items: center;
+}
+
+.flexContainer:hover {
+    background-color: yellowgreen;
 }
 
 .flexItem {

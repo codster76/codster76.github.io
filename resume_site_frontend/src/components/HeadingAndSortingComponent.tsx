@@ -15,10 +15,10 @@ interface HeadingState
     name: string,
     sortFunctionAscending: (a:itemType, b:itemType) => number,
     sortFunctionDescending: (a:itemType, b:itemType) => number,
-    sortingState: sortingStates
+    sortingState: SortingStates
 }
 
-type sortingStates = "unsorted" | "ascending" | "descending";
+type SortingStates = "unsorted" | "ascending" | "descending";
 
 let lastModified: HeadingState;
 let stateList: HeadingState[];
@@ -88,42 +88,50 @@ const HeadingAndSortingComponent = (props: HeadingAndSortingComponentProps) =>
 
     const headingClickBehaviour = (currentState: HeadingState) =>
     {
-        console.log(lastModified);
-        // Basically, if the last heading modified was the one that was clicked, cycle through the sorting types
+        // If the same heading is clicked in succession
         if(lastModified.name === currentState.name)
         {
             switch(currentState.sortingState)
             {
                 case "unsorted":
-                    console.log('1');
+                    props.updateItems([...props.items.sort(currentState.sortFunctionAscending)]);
+
                     currentState.updateHeading(currentState.name + '↓');
                     currentState.currentHeading = currentState.name + '↓'; // I really don't know why updating the state doesn't update the labels, but whatever
                     currentState.sortingState = 'ascending';
-                    props.updateItems([...props.items.sort(currentState.sortFunctionAscending)]);
+
                     break;
                 case "ascending":
-                    console.log('2');
+                    props.updateItems([...props.items.sort(currentState.sortFunctionDescending)]);
+
                     currentState.updateHeading(currentState.name + '↑');
                     currentState.currentHeading = currentState.name + '↑';
                     currentState.sortingState = 'descending';
-                    props.updateItems([...props.items.sort(currentState.sortFunctionDescending)]);
+
                     break;
                 case "descending":
-                    console.log('3');
+                    props.updateItems([...props.items.sort(currentState.sortFunctionAscending)]);
+
                     currentState.updateHeading(currentState.name + '↓');
                     currentState.currentHeading = currentState.name + '↓';
                     currentState.sortingState = 'ascending';
-                    props.updateItems([...props.items.sort(currentState.sortFunctionAscending)]);
+                    
                     break;
             }
         }
+        // If a different heading is clicked
         else
         {
+            // Sort
             props.updateItems([...props.items.sort(currentState.sortFunctionAscending)]);
+            
+            // Reset the previous heading
             lastModified.updateHeading(lastModified.name);
-            lastModified.sortingState = 'unsorted';
-            currentState.sortingState = 'ascending';
             lastModified.currentHeading = lastModified.name;
+            lastModified.sortingState = 'unsorted';
+
+            // Modify the heading that was just clicked
+            currentState.sortingState = 'ascending';
             currentState.updateHeading(currentState.name + '↓');
             currentState.currentHeading = currentState.name + '↓';
         }
@@ -132,7 +140,7 @@ const HeadingAndSortingComponent = (props: HeadingAndSortingComponentProps) =>
 
     return (
         <div>
-            <div className = {style.flexContainer}>
+            <div className = {style.flexContainer} style={{userSelect:'none'}}>
                 {
                     stateList.map((state) =>
                     (

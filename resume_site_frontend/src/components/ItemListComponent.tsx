@@ -2,6 +2,8 @@ import { itemType } from "../../../item";
 import style from '../css_modules/ItemComponent.module.css';
 import ItemComponent from "./ItemComponent";
 
+// Component that contains all item components
+
 export interface ItemListComponentProps
 {
     itemArray: itemType[]
